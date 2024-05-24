@@ -1,1 +1,0 @@
-# ritcheyandai_file_to_decimal_i1

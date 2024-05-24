@@ -1,0 +1,223 @@
+jamesdanielmarrsritchey: ```#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string input = getCmdOption(argv, argv + argc, "--string");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    }
+
+    if (!input.empty()) {
+        for (size_t i = 0; i < input.size(); ++i) {
+            std::cout << static_cast<int>(input[i]);
+            if (i != input.size() - 1) {
+                std::cout << delimiter;
+            }
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << "No input string was given." << std::endl;
+    }
+
+    return 0;
+}
+
+GitHub Copilot: This C++ program is a command-line utility that takes two optional arguments: `--string` and `--delimiter`. The `--string` argument is the string that the program will process, and the `--delimiter` argument is the delimiter that the program will use to separate the output.
+
+The `getCmdOption` function is used to parse the command-line arguments. It takes the beginning and end of the array of arguments, and the option to look for. It uses the `std::find` function from the `<algorithm>` library to find the option in the array. If the option is found and it's not the last argument, the function returns the argument that follows the option. If the option is not found or it's the last argument, the function returns an empty string.
+
+In the `main` function, the program first converts the array of arguments to a vector of strings. Then it calls `getCmdOption` to get the values of the `--string` and `--delimiter` options. If no delimiter is provided, it defaults to a space.
+
+The program then checks if an input string was provided. If it was, the program iterates over each character in the string, prints its ASCII value, and if it's not the last character, prints the delimiter. If no input string was provided, the program prints a message indicating this.
+
+The program then returns 0 to indicate successful execution.
+
+jamesdanielmarrsritchey: Intead of using a string as the data source, use a file. Replace the "--string" argument with a "--source_file value" argument.
+
+GitHub Copilot: To modify the program to read from a file instead of a string, you'll need to include the `<fstream>` library to handle file input. The `--string` argument will be replaced with `--source_file`, which will take the name of the file to read from. Here's how you can do it:
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string filename = getCmdOption(argv, argv + argc, "--source_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    }
+
+    if (!filename.empty()) {
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            char c;
+            while (file.get(c)) {
+                std::cout << static_cast<int>(c);
+                if (!file.eof()) {
+                    std::cout << delimiter;
+                }
+            }
+            std::cout << std::endl;
+            file.close();
+        } else {
+            std::cout << "Unable to open file." << std::endl;
+        }
+    } else {
+        std::cout << "No source file was given." << std::endl;
+    }
+
+    return 0;
+}
+```
+
+In this version of the program, if a filename is provided, the program attempts to open the file. If the file is successfully opened, the program reads each character from the file, prints its ASCII value, and if it's not the end of the file, prints the delimiter. If the file can't be opened, the program prints a message indicating this. If no filename is provided, the program prints a message indicating this.
+
+jamesdanielmarrsritchey: Instead of returning the decimal representation, write it to a new file. The new file will be declared using the argument "--destination_file value". If the program runs successfully, it should return bool true, and exit 0.
+
+GitHub Copilot: To modify the program to write to a file instead of printing to the console, you'll need to use an `std::ofstream` object to handle file output. The `--destination_file` argument will specify the name of the file to write to. Here's how you can do it:
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_filename = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_filename = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    }
+
+    if (!source_filename.empty() && !destination_filename.empty()) {
+        std::ifstream source_file(source_filename);
+        std::ofstream destination_file(destination_filename);
+        if (source_file.is_open() && destination_file.is_open()) {
+            char c;
+            while (source_file.get(c)) {
+                destination_file << static_cast<int>(c);
+                if (!source_file.eof()) {
+                    destination_file << delimiter;
+                }
+            }
+            source_file.close();
+            destination_file.close();
+            return true;
+        } else {
+            std::cout << "Unable to open file." << std::endl;
+        }
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+    }
+
+    return 0;
+}
+```
+
+In this version of the program, if both a source filename and a destination filename are provided, the program attempts to open both files. If both files are successfully opened, the program reads each character from the source file, writes its ASCII value to the destination file, and if it's not the end of the source file, writes the delimiter to the destination file. If either file can't be opened, the program prints a message indicating this. If either no source filename or no destination filename is provided, the program prints a message indicating this. If the program runs successfully, it returns `true`.
+
+jamesdanielmarrsritchey: If the delimiter is "\n", treat it as a line ending. If the delimiter is "\t" treat it as a tab.
+
+GitHub Copilot: To handle special characters like `\n` and `\t` as delimiters, you can add a check after retrieving the delimiter from the command line arguments. If the delimiter is the string `"\n"`, you can replace it with the actual newline character, and if it's the string `"\t"`, you can replace it with the actual tab character. Here's how you can do it:
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+
+std::string getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+int main(int argc, char* argv[]) {
+    std::vector<std::string> args(argv, argv + argc);
+    std::string source_filename = getCmdOption(argv, argv + argc, "--source_file");
+    std::string destination_filename = getCmdOption(argv, argv + argc, "--destination_file");
+    std::string delimiter = getCmdOption(argv, argv + argc, "--delimiter");
+
+    if (delimiter == "\\n") {
+        delimiter = "\n"; // treat as line ending
+    } else if (delimiter == "\\t") {
+        delimiter = "\t"; // treat as tab
+    } else if (delimiter.empty()) {
+        delimiter = " "; // default delimiter is space
+    }
+
+    if (!source_filename.empty() && !destination_filename.empty()) {
+        std::ifstream source_file(source_filename);
+        std::ofstream destination_file(destination_filename);
+        if (source_file.is_open() && destination_file.is_open()) {
+            char c;
+            while (source_file.get(c)) {
+                destination_file << static_cast<int>(c);
+                if (!source_file.eof()) {
+                    destination_file << delimiter;
+                }
+            }
+            source_file.close();
+            destination_file.close();
+            return true;
+        } else {
+            std::cout << "Unable to open file." << std::endl;
+        }
+    } else {
+        std::cout << "No source file or destination file was given." << std::endl;
+    }
+
+    return 0;
+}
+```
+
+In this version of the program, after retrieving the delimiter from the command line arguments, the program checks if the delimiter is the string `"\n"` or `"\t"`. If it is, the program replaces the delimiter with the actual newline character or tab character, respectively. If the delimiter is any other string, or if no delimiter is provided, the program uses the delimiter as is, or defaults to a space, respectively.
